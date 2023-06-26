@@ -340,7 +340,7 @@ public class FaintParticleTrigger
 
                             double trigger_length =hitsWithinTriggerWindow.getLast().getUTCTime() - hitsWithinTriggerWindow.getFirst().getUTCTime();
                             if ( trigger_length> max_trigger_length*convert_to_ns) {
-
+			        LOG.error("Unexpected long event");
                                 flushTrigger();
                             }
                                 /*
@@ -549,36 +549,8 @@ public class FaintParticleTrigger
             for (int j = 0; j < Doub_Indices.size(); j+= 2) {
                 DOMInfo hit1_dom = getDOMFromHit(domRegistry, get(Doub_Indices.get(j)));
                 DOMInfo hit2_dom = getDOMFromHit(domRegistry, get(Doub_Indices.get(j+1)));
-                //This part can be replaced by a table
-                double x1 = hit2_dom.getX()-hit1_dom.getX();
-                double y1 = hit2_dom.getY()-hit1_dom.getY();
-                double z1 = hit2_dom.getZ()-hit1_dom.getZ();
-
-                double r = Math.sqrt(Math.pow(x1,2)+Math.pow(y1,2)+Math.pow(z1,2));
-                double theta = 0;
-                if (r!=0 && Math.abs(z1/r)<=1){
-                    theta = Math.acos(z1/r);
-                }
-                else{
-                    if (z1<0){theta = Math.PI;}
-                }
-                if (theta<0){
-                    theta+=2*Math.PI;
-                }
-                double phi = 0;
-                if (x1!= 0 || y1 != 0){
-                    phi = Math.atan2(y1,x1);
-                }
-                if (phi <0){
-                    phi+=2*Math.PI;
-                }
-                double zenith = Math.PI-theta;
-                double azimuth = phi+Math.PI;
-                if (zenith>Math.PI){
-                    zenith -= Math.PI-(zenith-Math.PI);
-                }
-                azimuth -= (int)(azimuth/(2*Math.PI))*(2*Math.PI);
-
+                double zenith = domRegistry.directionBetweenDOMs(hit1_dom, hit2_dom)[0];
+                double azimuth = domRegistry.directionBetweenDOMs(hit1_dom, hit2_dom)[1];
                 Zenith_values.add(Math.toDegrees(zenith));
                 Azimuth_values.add(Math.toDegrees(azimuth));
 
